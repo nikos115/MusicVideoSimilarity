@@ -5,6 +5,7 @@ import spotipy
 import spotipy.oauth2 as oauth2
 import configparser
 import os
+import pprint
 
 class Spotify:
 
@@ -50,15 +51,23 @@ class Spotify:
                         continue
 
                     try:
+                        #song data
                         song_title = playlist_track['track']['artists'][0]['name'] + ' - ' + playlist_track['track']['name']
-                        url = Youtube(song_title).search_video()
-                        format = pytube.YouTube(url).streams.get_by_itag('133')
+                        song_id = playlist_track['track']['id']
+
+                        # song features
+                        audio_features = spotify.audio_features(song_id)
+
+                        # video data
+                        video_url = Youtube(song_title).search_video()
+                        format = pytube.YouTube(video_url).streams.get_by_itag('133')
 
                         if s_cnt == self.num_of_vid:
                             break
-
+                        
+                        # donwload video / save data in db
                         s_cnt += 1
-                        print('song: '+str(s_cnt)+ ': '+song_title+ ' | ' +url+ ' | ' +str(format))
+                        print('song: '+str(s_cnt)+ ': '+song_title+ ' | ' +video_url+ ' | ' +str(format))
                         format.download(self.dir)
 
                     except:
