@@ -11,4 +11,4 @@ class Index:
         Spotify(self.genre, self.num_of_vid).get_songs()
 
 # Add genre / num of songs you want to download
-Index('Metal',3).run()
+Index('Metal',60).run()
