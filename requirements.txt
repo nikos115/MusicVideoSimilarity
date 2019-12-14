@@ -1,0 +1,10 @@
+Flask
+Flask-Bootstrap
+Flask-Migrate
+Flask-SQLAlchemy
+Flask-WTF
+scikit-image
+opencv-python
+pyAudioAnalysis
+
+

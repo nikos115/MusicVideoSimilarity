@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+
+{% block app_content %}
+    <div class="background-image">
+        <div class="container">
+            <h1>Music Video Similarity</h1>
+            <div class="row center search-form">
+                {% if form %}
+                    {{ wtf.quick_form(form) }}
+                {% endif %}
+            </div>
+            <div class="recent">
+                <h3>Recent Searches:</h3>
+                <div class="row">
+                {% for video in searches %}
+                    {% if loop.index0 % 2 == 0 %}
+                        </div><div class="row">
+                    {% endif %}
+                    <div class="col-md-6 col-sm-12">
+                    {% include '_video.html' %}
+                    </div>
+                {% endfor %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
