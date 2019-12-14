@@ -22,3 +22,10 @@ Find the most similar song in database
 
 #### 4. Evaluate similarity in terms of metadata
 - Classify the new video by the pre trained classifiers
+
+## Running the app
+The app is built with Flask framework. A Postgres container serves the database, therefore Docker is required to be installed.
+You can easily setup your environment and run the app by modifying and sourcing run.sh
+```
+$ source ./run.sh
+```
