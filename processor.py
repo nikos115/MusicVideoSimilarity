@@ -134,22 +134,6 @@ class Processor:
             return segment
 
 
-def extract_features(video_extractor, file, part):
-    vf = vfn = af = afn = None
-    try:
-        audio_file = "aud.part"+str(part)+"."+file+".wav"
-        fs, s = aIO.readAudioFile(audio_file)
-        af, afn = aF.stFeatureExtraction(s, fs, int(fs * 1), int(fs * 0.47))
-
-        video_file = "vid.part"+str(part)+"."+file
-        vf, t, vfn = video_extractor.extract_features(video_file)
-
-    except Exception as e:
-        print(e)
-    finally:
-        return part, vf, vfn, af, afn
-
-
 if __name__ == '__main__':
     """Extract features for downloaded videos in database with no segments"""
     p = Processor()
