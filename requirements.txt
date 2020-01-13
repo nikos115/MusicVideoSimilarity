@@ -6,5 +6,8 @@ Flask-WTF
 scikit-image
 opencv-python
 pyAudioAnalysis
-
-
+moviepy
+joblib
+numpy
+pandas
+pytube
