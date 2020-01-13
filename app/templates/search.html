@@ -1,11 +1,37 @@
 {% extends "base.html" %}
 
 {% block app_content %}
-    <h2>Selected Video<h2>
-    {% include '_video.html' %}
-    <h2>Search Results</h2>
-    {% for result in results %}
-        {% include '_video.html' %}
-    {% endfor %}
+    <div class="container">
+        <div class="row selected-video">
+            <h2>Selected Video</h2>
+            <div id="selected-video">
+            {% include '_video.html' %}
+            </div>
+        </div>
 
+        <div class="row search-results">
+            <h2>Search Results</h2>
+            {% for video in results %}
+                {% if loop.index0 % 2 == 0 %}
+                    </div><div class="row search-results">
+                {% endif %}
+                <div class="col-md-6 col-sm-12">
+                {% include '_video.html' %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="row similar-searches">
+            <h2>Similar Searches</h2>
+            {% for video in searches %}
+                {% if loop.index0 % 2 == 0 %}
+                    </div><div class="row similar-searches">
+                {% endif %}
+                <div class="col-md-6 col-sm-12">
+                {% include '_video.html' %}
+                </div>
+            {% endfor %}
+        </div>
+
+    </div>
 {% endblock %}

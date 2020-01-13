@@ -10,6 +10,10 @@
                     {{ wtf.quick_form(form) }}
                 {% endif %}
             </div>
+            <div class="row center" id="fetching">
+                <div id="disco"></div>
+                <p>Processing your request, please be patient..</p>
+            </div>
             <div class="recent">
                 <h3>Recent Searches:</h3>
                 <div class="row">
@@ -27,3 +31,13 @@
         </div>
     </div>
 {% endblock %}
+
+{% block app_scripts %}
+    <script>
+        $('#submit').click(function(){
+            $('.search-form').hide();
+            $('#fetching').show();
+        });
+    </script>
+{% endblock %}
+

@@ -16,6 +16,10 @@ h1, h2, h3 {
     color:#fff;
 }
 
+#genre-container {
+    min-height:90vh;
+}
+
 .background-image h1 {
     text-shadow: 2px 2px #2e54ae;
     color: #dbe0e8;
@@ -30,7 +34,7 @@ h1, h2, h3 {
     border-radius: 0;
 }
 
-.search-form {
+.search-form, #fetching {
     width: 650px;
     margin: 50px auto;
     text-align: center;
@@ -64,13 +68,14 @@ h1, h2, h3 {
 }
 
 .recent {
-    margin-bottom:100px;
+    margin-bottom:130px;
 }
 
 footer {
     background: #000;
     color: #7f9cca;
     padding: 30px;
+    border-top: 1px solid #e7e7e7;
 }
 
 .footer-sep {
@@ -80,4 +85,45 @@ footer {
 .copyright {
     margin:30px;
     color: #777;
+}
+
+.row.genres a {
+    font-size: 150%;
+    text-shadow: 0px 4px 13px #5d30e4;
+}
+
+.row.genres {
+    margin-top:20px;
+}
+
+
+#fetching{
+    display:none;
+}
+
+#disco {
+    background: url(../img/disco.gif) no-repeat;
+    height: 96px;
+    width: 96px;
+    margin: auto;
+}
+
+.search-results {
+    background-color:#a6d2ff;
+    padding-bottom:20px;
+}
+
+.similar-searches {
+    /* background-color:#b5d9f3; */
+    padding-bottom:20px;
+}
+
+.selected-video {
+   /* background-color:#e1f4fd; */
+   padding-bottom:20px;
+}
+
+#selected-video {
+    margin:auto;
+    width: 516px;
 }
