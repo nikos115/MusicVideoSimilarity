@@ -1,31 +1,43 @@
 from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip, ffmpeg_extract_audio
+from moviepy.tools import subprocess_call
+from moviepy.config import get_setting
 from pyAudioAnalysis import audioFeatureExtraction as aF
 from pyAudioAnalysis import audioBasicIO as aIO
 from Tyiannak.video_features import VideoFeatureExtractor
 import cv2
-from joblib import Parallel, delayed
 import os
+import os.path
+from app import db
+from app.models import Segment, SegmentFeatures, Feature, Video
+import numpy as np
+import multiprocessing as mp
 
 
 class VideoSplitter:
     _segment_duration = 10
     _file = None
     _duration = 0
-    _step = 0
     _r = []
 
     def set_file(self, file):
         self._file = file
         self._duration = int(self.get_duration())
-        self._step = int(self._segment_duration // 2)
-        self._r = range(0, self._duration-self._segment_duration, self._step)
+        # step = int(self._segment_duration // 2)
+        step = self._segment_duration  # no overlap
+        self._r = range(0, self._duration-self._segment_duration, step)
 
     def split(self):
         for t in self._r:
             video_file = "vid.part"+str(t)+"."+self._file
             audio_file = "aud.part"+str(t)+"."+self._file+".wav"
             ffmpeg_extract_subclip(self._file, t, t+self._segment_duration, targetname=video_file)
-            ffmpeg_extract_audio(video_file, audio_file)
+            # ffmpeg_extract_audio(video_file, audio_file)
+
+            # pyAudioAnalysis accepts mono -> refactor ffmpeg_extract_audio #
+            bitrate = 3000
+            fps = 44100
+            cmd = [get_setting("FFMPEG_BINARY"), "-y", "-i", video_file, "-ac", "1", "-ab", "%dk"%bitrate, "-ar", "%d"%fps, audio_file]
+            subprocess_call(cmd)
 
         return self._r
 
@@ -39,6 +51,7 @@ class VideoSplitter:
         n_frames = capture.get(cv2.CAP_PROP_FRAME_COUNT)
         fps = capture.get(cv2.CAP_PROP_FPS)
         return n_frames / fps
+        # return VideoFileClip(self._file).duration
 
     def get_segment_end(self, start):
         return min(self._duration, start + self._segment_duration)
@@ -51,49 +64,98 @@ class Processor:
     def __init__(self):
         self._file = None
         self._splitter = VideoSplitter()
-        self._video_extractor = VideoFeatureExtractor(step=0.25)
-        self._video_feature_map = {}
-        self._audio_feature_map = {}
-        # Niko fill map from database
+        self._video_extractor = VideoFeatureExtractor(resize_width=256, step=0.5)
+        self._features = []
+
+        # get a map connecting feature names to db ids
+        db_video_features = Feature.query.filter(Feature.description.in_(self._video_features)).all()
+        video_feature_map = {dvf.description: dvf.id for dvf in db_video_features}
+
+        db_audio_features = Feature.query.filter(Feature.description.in_(self._audio_features)).all()
+        audio_feature_map = {daf.description: daf.id for daf in db_audio_features}
+        # merge into one map
+        self._feature_map = {**video_feature_map, **audio_feature_map}
 
     def process_file(self, file, video_id):
+        if not os.path.isfile(file):
+            print('Could not locate file: ' + file)
+            return
+
         self._splitter.set_file(file)
         parts = self._splitter.split()
 
-        audio_features = Parallel(n_jobs=-1)(delayed(extract_audio_features)(file, part) for part in parts)
-        print(audio_features)
+        # all part features per part as row
 
-        # Niko save audio features to database
+        pool = mp.Pool(mp.cpu_count())
+        segments = pool.starmap_async(self.get_segments, [(file, part, video_id) for part in parts]).get()
+        pool.close()
+        pool.join()
 
-        video_features = Parallel(n_jobs=-1)(delayed(extract_video_features)(self._video_extractor, file, part) for part in parts)
-        print(video_features)
-
-        # Niko save video features to database
-
+        for segment in filter(None, segments):
+            db.session.add(segment)
+        db.session.commit()
         self._splitter.delete_parts()
 
+    def get_segments(self, file, part, video_id):
 
-def extract_video_features(extractor, file, part):
-    part_file = "vid.part"+str(part)+"."+file
-    print(part_file)
-    f = fn = None
+        try:
+            audio_file = "aud.part"+str(part)+"."+file+".wav"
+            fs, s = aIO.readAudioFile(audio_file)
+            af, afn = aF.stFeatureExtraction(s, fs, int(fs * 1), int(fs * 0.47))
+
+            video_file = "vid.part"+str(part)+"."+file
+            vf, t, vfn = self._video_extractor.extract_features(video_file)
+        except Exception as e:
+            print(e)
+            return None
+        else:
+            segment_features = []
+            # construct segmentfeature
+            # for seq_no, row in enumerate(vf.T.mean()):
+            #     for i, val in enumerate(row):
+            vmean = vf.T.mean(axis=1)
+            for i, val in enumerate(vmean):
+                if isinstance(val, np.ndarray):
+                    val = val[0]
+
+                feature = SegmentFeatures(value=val, seq_no=1, feature_id=self._feature_map[vfn[i]])
+                segment_features.append(feature)
+
+            # for i, col in enumerate(af):
+            #     for seq_no, val in enumerate(col):
+            amean = af.mean(axis=1)
+            for i, val in enumerate(amean):
+                feature = SegmentFeatures(value=val, seq_no=1, feature_id=self._feature_map[afn[i]])
+                segment_features.append(feature)
+
+            # construct segment with its segmentfeatures
+            segment = Segment(video_id=video_id, start_sec=part, end_sec=self._splitter.get_segment_end(part), features=segment_features)
+
+            return segment
+
+
+def extract_features(video_extractor, file, part):
+    vf = vfn = af = afn = None
     try:
-        f, t, fn = extractor.extract_features(part_file)
-    finally:
-        return f, fn
+        audio_file = "aud.part"+str(part)+"."+file+".wav"
+        fs, s = aIO.readAudioFile(audio_file)
+        af, afn = aF.stFeatureExtraction(s, fs, int(fs * 1), int(fs * 0.47))
 
+        video_file = "vid.part"+str(part)+"."+file
+        vf, t, vfn = video_extractor.extract_features(video_file)
 
-def extract_audio_features(file, part):
-    part_file = "aud.part"+str(part)+"."+file+".wav"
-    print(part_file)
-    fs, s = aIO.readAudioFile(part_file)
-    f = fn = None
-    try:
-        [f, fn] = aF.stFeatureExtraction(s, fs, int(fs * 0.050), int(fs * 0.050))
+    except Exception as e:
+        print(e)
     finally:
-        return f, fn
+        return part, vf, vfn, af, afn
 
 
 if __name__ == '__main__':
+    """Extract features for downloaded videos in database with no segments"""
     p = Processor()
-    p.process_file('test.mp4', 0)
+    cwd = os.getcwd()
+    videos = Video.query.outerjoin(Segment).filter(Video.search == False, Segment.video_id.is_(None)).all()
+    for video in videos:
+        os.chdir(video.directory)
+        p.process_file(video.file, video.id)
+        os.chdir(cwd)
