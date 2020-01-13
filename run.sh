@@ -6,4 +6,5 @@ docker run --rm   --name pg-docker -e POSTGRES_PASSWORD=pg#docker -d -p 5432:543
 
 export DATABASE_URI="postgresql+psycopg2://postgres:pg#docker@localhost:5432/mvsimilarity"
 export SECRET_KEY="a very very secret key very very well hidden"
+export FLASK_DEBUG=1
 flask run --host=0.0.0.0
