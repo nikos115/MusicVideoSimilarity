@@ -10,4 +10,4 @@ moviepy
 joblib
 numpy
 pandas
-pytube
+pytube3
