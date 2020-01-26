@@ -7,7 +7,7 @@
             <h1>Music Video Similarity</h1>
             <div class="row center search-form">
                 {% if form %}
-                    {{ wtf.quick_form(form) }}
+                    {{ wtf.quick_form(form, form_type='inline') }}
                 {% endif %}
             </div>
             <div class="row center" id="fetching">
@@ -35,7 +35,7 @@
 {% block app_scripts %}
     <script>
         $('#submit').click(function(){
-            $('.search-form').hide();
+           // $('.search-form').hide();
             $('#fetching').show();
         });
     </script>

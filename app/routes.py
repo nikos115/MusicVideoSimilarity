@@ -24,7 +24,8 @@ def index():
                 yt = YouTube(video_url).streams.filter(progressive=True).last()
                 yt.download()
 
-            except:
+            except Exception as e:
+                print(e)
                 flash('Cannot download video. Please choose another.')
 
             else:
@@ -39,22 +40,22 @@ def index():
                 os.remove(yt.default_filename)
 
         if video is not None:
-            return redirect(url_for('search', video_id=video.id))
+            return redirect(url_for('search', video_id=video.id, features=form.features.data, distance=form.distance.data))
 
     searches = Video.query.filter_by(search=True).order_by(Video.id.desc()).limit(4).all()
 
     return render_template('index.html', title='Home', form=form, searches=searches)
 
 
-@app.route('/search/<video_id>')
-def search(video_id):
+@app.route('/search/<video_id>/<features>/<distance>')
+def search(video_id, features='all', distance='l2'):
     video = Video.query.filter_by(id=video_id, search=True).first_or_404()
 
     # search
     sql = """
     SELECT haystack.id, haystack.url,
     (|/ (SUM ((haystacksegmentfeatures.value - needlesegmentfeatures.value) * weight) ^ 2)) as l2_distance,
-    ((SUM(haystacksegmentfeatures.value * needlesegmentfeatures.value) * weight) / ((|/ SUM(haystacksegmentfeatures.value * weight) ^ 2) * (|/ SUM(needlesegmentfeatures.value * weight) ^ 2))) as cosine_distance
+    (SUM(haystacksegmentfeatures.value * needlesegmentfeatures.value * weight ^ 2) / ((|/ SUM(haystacksegmentfeatures.value * weight) ^ 2) * (|/ SUM(needlesegmentfeatures.value * weight) ^ 2))) as cosine_distance
     
     FROM video haystack
     INNER JOIN segment haystacksegment ON haystack.id = haystacksegment.video_id
@@ -66,14 +67,21 @@ def search(video_id):
     
     INNER JOIN feature ON haystacksegmentfeatures.feature_id = feature.id
     
-    where haystack.search = :search
-    
-    GROUP BY haystack.id, haystack.url, weight
-    
-    ORDER BY cosine_distance
-    
-    LIMIT 2
+    WHERE haystack.search = :search
     """
+    if 'A' == features:
+        sql += " AND feature.type='M'"
+    elif 'V' == features:
+        sql += " AND feature.type='V'"
+
+    sql += " GROUP BY haystack.id, haystack.url, weight"
+
+    if 'cos' == distance:
+        sql += " ORDER BY cosine_distance"
+    else:
+        sql += " ORDER BY l2_distance"
+
+    sql += " LIMIT 2"
 
     # results = db.session.execute(text(sql), id=video_id, search=False)
 
