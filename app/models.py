@@ -1,4 +1,5 @@
 from app import db
+from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
 
 
 class Feature(db.Model):
@@ -12,12 +13,14 @@ class Video(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     url = db.Column(db.String(160), nullable=False)
     search = db.Column(db.Boolean, nullable=False, index=True)
+    genre = db.Column(db.String(64))
     directory = db.Column(db.String(250))
     file = db.Column(db.String(250))
     youtube_id = db.Column(db.String(64))
 
     segments = db.relationship('Segment', lazy='select', backref=db.backref('video', lazy='joined'))
-    meta = db.relationship('Meta', lazy='select', backref=db.backref('video', lazy='joined'))
+    meta = db.relationship('Meta', lazy='joined', backref=db.backref('video', lazy='joined'))
+    encodings = db.relationship('Encoding', lazy='select', backref=db.backref('video', lazy='joined'))
 
     @staticmethod
     def get_youtube_id(url):
@@ -37,7 +40,7 @@ class Segment(db.Model):
     start_sec = db.Column(db.SmallInteger)
     end_sec = db.Column(db.SmallInteger)
 
-    features = db.relationship('SegmentFeatures', lazy='select', backref=db.backref('segment', lazy='joined'))
+    features = db.relationship('SegmentFeatures', lazy='joined', backref=db.backref('segment', lazy='joined'))
 
 
 class SegmentFeatures(db.Model):
@@ -49,11 +52,17 @@ class SegmentFeatures(db.Model):
     feature = db.relationship('Feature', lazy='joined')
 
 
+class Encoding(db.Model):
+    video_id = db.Column(db.Integer, db.ForeignKey('video.id'), primary_key=True)
+    seq_no = db.Column(db.Integer, primary_key=True)
+    value = db.Column(DOUBLE_PRECISION)
+
+
 class Meta(db.Model):
     video_id = db.Column(db.Integer, db.ForeignKey('video.id'), primary_key=True)
     title = db.Column(db.String(160), nullable=False)
     artist = db.Column(db.String(160), nullable=False)
-    genre = db.Column(db.String(160), nullable=False)
+    # genre = db.Column(db.String(160), nullable=False)
     danceability = db.Column(db.Float)
     energy = db.Column(db.Float)
     loudness = db.Column(db.Float)
