@@ -115,3 +115,32 @@ footer {
     margin:auto;
     width: 516px;
 }
+
+.feature-ref {
+    text-align:center;
+    margin: 10px;
+}
+
+.feature-ref a {
+    color: #335bb7;
+}
+
+#feature-tbl .first-row td {
+    color: #335bb7;
+}
+
+.up {
+    color: green;
+}
+
+.down {
+    color: red;
+}
+
+.center {
+    text-align: center;
+}
+
+.bottom-space {
+    margin-bottom:250px;
+}

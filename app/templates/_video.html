@@ -1,3 +1,8 @@
     <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/{{ video.youtube_id }}"
              frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope;
              picture-in-picture" allowfullscreen></iframe>
+    {% if show_feature_link %}
+    <div class="feature-ref">
+        <a href="{{ url_for('features', video_id=video.id) }}">Video Features</a>
+    </div>
+    {%  endif %}

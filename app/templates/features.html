@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+{% set rowcnt=[0] %}
+
+<div >
+    <div class="container">
+        <h1>Video Features</h1>
+        <div class="row selected-video">
+             <div id="selected-video">
+            {% include '_video.html' %}
+             </div>
+        </div>
+         <div class="row">
+            <img src="data:image/png;base64, {{ plot_url }}" width="100%" height="100%" alt="graph">
+        </div>
+        <table id="feature-tbl">
+        {% for key, row in data.items() %}
+            <tr {% if loop.first %}class="first-row"{% endif %}>
+                <th> {{ key }}</th>
+            {% for col in row %}
+                <td class="
+                {% if loop.previtem is defined and col < loop.previtem %}
+                    down
+                 {% else %}
+                    up
+                {% endif %}"
+                > {{ col|round(4) }} </td>
+            {% endfor %}
+            </tr>
+        {% endfor %}
+        </table>
+
+    </div>
+</div>
+{% endblock %}

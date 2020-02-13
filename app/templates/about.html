@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <div class="background-image">
+        <div class="container" id="genre-container">
+            <h1>About</h1>
+            <div class="row center">
+                <h3>DataBase Structure</h3>
+                <img src="{{ url_for('static', filename='img/database.png') }}" width="350" height="400">
+            </div>
+            <div class="row center">
+                <h3>Search Flow</h3>
+                <img src="{{ url_for('static', filename='img/search_flow.png') }}" width="500" height="1000">
+            </div>
+            <div class="row center">
+                <h3>Feature Extraction</h3>
+                <a href="https://github.com/tyiannak/pyAudioAnalysis">Audio Features</a>
+                <a href="https://github.com/tyiannak/multimodalAnalysis/tree/master/visual">Video Features</a>
+            </div>
+             <div class="row bottom-space">
+             </div>
+        </div>
+    </div>
+{% endblock %}
