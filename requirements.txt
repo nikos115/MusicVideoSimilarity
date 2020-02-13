@@ -1,3 +1,9 @@
+wtforms
+seaborn
+scikit-learn
+keras
+sqlalchemy
+matplotlib
 Flask
 Flask-Bootstrap
 Flask-Migrate
