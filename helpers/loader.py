@@ -17,7 +17,7 @@ names = ['title',
          'valence',
          'tempo']
 
-csv_df = pd.read_csv('../Music/metadata.csv', header=None, names=names)
+csv_df = pd.read_csv('../Music/metadata-4.csv', header=None, names=names)
 
 # db.drop_all()
 # db.create_all()
@@ -36,7 +36,7 @@ for row_index, row in csv_df.iterrows():
                         valence=row['valence'],
                         tempo=row['tempo'])
 
-    video = Video(directory=row['folder'], file=row['file']+'.mp4', url=row['url'], search=False, meta=[metadata])
+    video = Video(directory=row['folder'], file=row['file']+'.mp4', url=row['url'], genre=row['genre'], search=False, meta=[metadata])
     db.session.add(video)
     # Video.query.filter_by(url=row['url']).update(dict(directory=row['folder'], file=row['file']+'.mp4'))
 
