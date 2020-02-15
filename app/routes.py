@@ -59,8 +59,6 @@ def about():
 def search(video_id, ft, distance):
     video = Video.query.filter_by(id=video_id, search=True).first_or_404()
 
-    # (SUM(haystacksegmentfeatures.value * needlesegmentfeatures.value * weight ^ 2) / (|/ SUM((haystacksegmentfeatures.value * weight) ^ 2 ) * |/ SUM((needlesegmentfeatures.value * weight) ^ 2))) / COUNT(*) as cosine_distance
-
     # search
 
     sql = """
@@ -96,6 +94,16 @@ def search(video_id, ft, distance):
         sql += " AND feature.type='M'"
     elif 'V' == ft:
         sql += " AND feature.type='V'"
+    elif 'E' == ft:
+        sql = """
+        SELECT haystack.id, haystack.url,
+        (SUM(haystackencoding.value * needleencoding.value) / (|/ SUM((haystackencoding.value ) ^ 2 ) * |/ SUM((needleencoding.value) ^ 2))) as cosine_distance,
+        (|/ (SUM(haystackencoding.value - needleencoding.value) ^ 2)) as l2_distance
+        FROM video haystack
+        INNER JOIN encoding haystackencoding ON haystack.id = haystackencoding.video_id
+        INNER JOIN encoding needleencoding ON haystackencoding.seq_no = needleencoding.seq_no AND needleencoding.video_id != haystackencoding.video_id AND needleencoding.video_id = :id
+        WHERE haystack.search = :search
+        """
 
     sql += " GROUP BY haystack.id, haystack.url"
 
@@ -103,18 +111,6 @@ def search(video_id, ft, distance):
         sql += " ORDER BY cosine_distance DESC"
     else:
         sql += " ORDER BY l2_distance"
-
-    if 'E' == ft:
-        sql = """
-        SELECT haystack.id, haystack.url,
-        (|/ (SUM(haystackencoding.value - needleencoding.value) ^ 2)) as l2_distance
-        FROM video haystack
-        INNER JOIN encoding haystackencoding ON haystack.id = haystackencoding.video_id
-        INNER JOIN encoding needleencoding ON haystackencoding.seq_no = needleencoding.seq_no AND needleencoding.video_id != haystackencoding.video_id AND needleencoding.video_id = :id
-        WHERE haystack.search = :search
-        GROUP BY haystack.id, haystack.url
-        ORDER BY l2_distance
-        """
 
     sql += " LIMIT 4"
 
