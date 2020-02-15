@@ -102,7 +102,7 @@ class Predictor:
         plot_model(compo, show_shapes=True, to_file='model/composite.png')
         # fit model
         es = EarlyStopping(monitor='val_classification_accuracy', mode='max', verbose=0, patience=15, restore_best_weights=True)
-        history = compo.fit(x_train, [x_train, y_train], validation_data=(x_val, [x_val, y_val]), epochs=150, batch_size=4, callbacks=[es])
+        history = compo.fit(x_train, [x_train, y_train], validation_data=(x_val, [x_val, y_val]), epochs=150, batch_size=2, callbacks=[es])
         compo.save(Predictor.composite_model_file)
         scores = compo.evaluate(x_val, [x_val, y_val], verbose=0)
 
