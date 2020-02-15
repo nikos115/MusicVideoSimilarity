@@ -15,17 +15,23 @@ Find the most similar song in database
 - Extract audio features using pyAudioAnalysis
 - Extract video features ...
 - Save audio & video features in database
-- Train NN classifiers with database instances for predicting new video metadata
+- Train NN autoencoder for encoding videos into a fixed length vector
+- Train NN classifier on database instances for predicting new video genre
 
 #### 3. Compute similarity graph for audio, visual and audio-visual feature representations
 - Implement KNN on SQL evaluating distance weights along each feature
+- Use Euclidian and Cosine similarity metrics
 
 #### 4. Evaluate similarity in terms of metadata
-- Classify the new video by the pre trained classifiers
+- Classify the new video by the pre trained classifier, boost same genre videos on similarity
 
 ## Running the app
-The app is built with Flask framework. A Postgres container serves the database, therefore Docker is required to be installed.
-You can easily setup your environment and run the app by modifying and sourcing run.sh
+The app is built with Flask framework. A Postgres container serves the database, therefore [Docker](https://docs.docker.com/install/) and the [psycopg2](https://www.psycopg.org/docs/install.html) driver are required to be installed.
+Once the project requirements are met,
+```
+$ pip3 install -r requirements.txt
+```
+You can easily run the app by sourcing run.sh
 ```
 $ source ./run.sh
 ```
