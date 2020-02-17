@@ -9,6 +9,10 @@ from processor import Processor
 from predictor import Predictor
 import os
 from collections import defaultdict
+import urllib.parse
+import matplotlib.pyplot as plt
+import io
+import base64
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -145,22 +149,17 @@ def features(video_id):
         view_data['SECONDS'].append(segment.start_sec)
         for sgf in segment.features:
             view_data[sgf.feature.description].append(sgf.value)
-
-    import urllib.parse
-    import matplotlib.pyplot as plt
-    import io
-    import base64
-
     img = io.BytesIO()  # create the buffer
 
     for k, v in view_data.items():
-        if k in ['SECONDS', 'm', 's', 'mfcc_1', 'energy_entropy']:
+        if k in ['SECONDS', 'm', 's', 'mfcc_1_mean', 'energy_entropy_mean']:
             continue
         plt.plot(view_data['SECONDS'], v, label=k)
 
     plt.savefig(img, format='png')  # save figure to the buffer
+    plt.close()
     img.seek(0)  # rewind your buffer
 
-    plot_data = urllib.parse.quote(base64.b64encode(img.read()).decode()) # base64 encode & URL-escape
+    plot_data = urllib.parse.quote(base64.b64encode(img.read()).decode())  # base64 encode & URL-escape
 
     return render_template('features.html', title='Video Features', video=video, data=view_data, plot_url=plot_data)
