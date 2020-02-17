@@ -15,7 +15,7 @@ Find the most similar song in database
 - Extract audio features using [pyAudioAnalysis](https://github.com/tyiannak/pyAudioAnalysis)
 - Extract video features using [Tyiannak](https://github.com/tyiannak/multimodalAnalysis) modules
 - Save audio & video features in database
-- Train a NN LSTM autoencoder for encoding videos into a fixed length vector (40 dimensions)
+- Train a NN LSTM autoencoder (40 timesteps x 422 features) for encoding videos into a fixed length vector (40 dimensions)
 - Train a NN classifier on database instance 40D encodings for predicting new video genre (10 target classes) 
 ![composite nn model](model/composite.png?raw=true "composite autoencoder-classifier")
 
