@@ -43,3 +43,6 @@ $ source ./run.sh
 ```
 - Open your browser and connect to http://localhost:5000
 ![web ui index](app/static/img/index-ui.png?raw=true "web ui index page")
+
+## Search flow
+![search flow](app/static/img/search_flow.png?raw=true "search flow")
