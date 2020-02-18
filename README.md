@@ -16,8 +16,8 @@ Find the most similar song in database
 - Extract video features using [Tyiannak](https://github.com/tyiannak/multimodalAnalysis) modules
 - Save audio & video features in database
 - Train a NN LSTM autoencoder (44 timesteps x 422 features) for encoding videos into a fixed length vector (40 dimensions)
-- Train a NN classifier on database instance 40D encodings for predicting new video genre (10 target classes) 
-![composite nn model](model/composite.png?raw=true "composite autoencoder-classifier"){:height="50%" width="50%"}
+- Train a NN classifier on database video 40D encodings for predicting new video genre (10 target classes) 
+![composite nn model](model/composite.png?raw=true "composite autoencoder-classifier")
 
 #### 3. Compute similarity graph for audio, visual and audio-visual feature representations
 - Implement KNN on SQL evaluating distance weights along each feature
@@ -28,7 +28,7 @@ Find the most similar song in database
 
 ## Training History & Confusion Matrix
 ![model training history](app/static/img/train_history.png?raw=true "composite model training history")
-![confusion matrix](app/static/img/heatmap.png?raw=true "confusion matrix"){:height="50%" width="50%"}
+![confusion matrix](app/static/img/heatmap.png?raw=true "confusion matrix")
 
 ## Running the app
 The app is built with Flask framework. A Postgres container serves the database, therefore [Docker](https://docs.docker.com/install/) and the [psycopg2](https://www.psycopg.org/docs/install.html) driver are required to be installed.
@@ -42,8 +42,8 @@ $ pip3 install -r requirements.txt
 $ source ./run.sh
 ```
 - Open your browser and connect to http://localhost:5000
-![web ui index](app/static/img/index-ui.png){:height="50%" width="50%"}
-![web ui search results](app/static/img/search-ui.png){:height="50%" width="50%"}
+![web ui index](app/static/img/index-ui.png)
+![web ui search results](app/static/img/search-ui.png)
 
 ## Search flow
 ![search flow](app/static/img/search_flow.png?raw=true "search flow")
