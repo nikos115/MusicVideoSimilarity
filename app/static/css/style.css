@@ -11,7 +11,8 @@ h1, h2, h3, h4 {
     width:100%;
     height:100%;
     padding-top:40px;
-    background-image: url(../img/index.jpg), linear-gradient(90deg, rgba(1,2,7,1) 0%, rgba(13,38,85,1) 62%, rgba(0,7,26,1) 100%);
+    background-image: url(../img/index.jpg);
+    background-color: #000002;
     background-repeat:no-repeat;
     background-position:center bottom;
     color:#fff;
@@ -97,7 +98,7 @@ footer {
 }
 
 .search-results {
-    background-color:#a6d2ff;
+    background-color:#ffffff15;
     padding-bottom:20px;
 }
 
@@ -122,7 +123,8 @@ footer {
 }
 
 .feature-ref a {
-    color: #335bb7;
+    color: #fff;
+    text-decoration:underline;
 }
 
 #feature-tbl .first-row td {
